@@ -9,7 +9,7 @@ import (
 
 
 type ExportedData struct {
-	Stops []StopStation
+	Stops  []StopStation
 	Routes []Route
 }
 
@@ -34,13 +34,13 @@ func main() {
 
 	for idx, route := range data.Routes {
 		all_stops := route_stops[route.Id]
-		stops := make([]string,0)
+		stops := make([]string, 0)
 		for stop, _ := range all_stops {
-			stops = append(stops,stop)
+			stops = append(stops, stop)
 		}
 		data.Routes[idx].Stops = stops
 	}
-	
+
 	//	fmt.Printf("%d bus stops for %d unique names\n", nb_stops, len(stops_by_name))
 	js_data, _ := json.Marshal(data)
 	fmt.Printf("%s\n", js_data)

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/stanguy/extract_stops/gtfsreader"
 	"io"
-	"fmt"
 	"log"
 )
 
@@ -23,9 +23,8 @@ func readtrips(basedir string) map[string]string {
 	route_id := reader.Headers["route_id"]
 	trip_id := reader.Headers["trip_id"]
 
-
 	routes_by_trip := make(map[string]string)
-	
+
 	for {
 		line, err := reader.Read()
 		if err == io.EOF {
@@ -54,7 +53,7 @@ func readstoptimes(basedir string, routes_by_trip map[string]string) map[string]
 	trip_id := reader.Headers["trip_id"]
 
 	line_stops := make(map[string]map[string]bool)
-	
+
 	for {
 		line, err := reader.Read()
 		if err == io.EOF {
@@ -66,7 +65,7 @@ func readstoptimes(basedir string, routes_by_trip map[string]string) map[string]
 
 		route, name_exists := routes_by_trip[trip]
 		if !name_exists {
-			log.Fatal( "Unknown trip/route" )
+			log.Fatal("Unknown trip/route")
 		}
 		route_stops, name_exists := line_stops[route]
 		if !name_exists {

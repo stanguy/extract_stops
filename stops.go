@@ -1,15 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"github.com/paulsmith/gogeos/geos"
 	"github.com/pebbe/go-proj-4/proj"
 	"github.com/stanguy/extract_stops/gtfsreader"
 	"io"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
-	"log"
-	"fmt"
 )
 
 const WKS84_SRID = 4326

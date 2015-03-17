@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"fmt"
 	"github.com/moovweb/gokogiri"
@@ -94,7 +93,7 @@ func readroutes(basedir string) []Route {
 	bgcolor := reader.Headers["route_color"]
 	fgcolor := reader.Headers["route_text_color"]
 
-	routes := make([]Route,0)
+	routes := make([]Route, 0)
 	for {
 		line, err := reader.Read()
 		if err == io.EOF {
@@ -125,6 +124,6 @@ func readroutes(basedir string) []Route {
 		}
 		routes = append(routes, route)
 	}
-	
+
 	return routes
 }
