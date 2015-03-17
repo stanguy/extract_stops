@@ -9,8 +9,10 @@ import (
 
 const ROUTES_FILENAME = "routes.txt"
 type Route struct {
-	Id string
-	Name string
+	Id     string
+	Name   string
+	Colors []string
+
 	Stops []string
 }
 
@@ -26,6 +28,8 @@ func readroutes(basedir string) []Route {
 
 	route_id := reader.Headers["route_id"]
 	short_name := reader.Headers["route_short_name"]
+	bgcolor := reader.Headers["route_color"]
+	fgcolor := reader.Headers["route_text_color"]
 
 	routes := make([]Route,0)
 	for {
@@ -34,8 +38,9 @@ func readroutes(basedir string) []Route {
 			break
 		}
 		route := Route{
-			Id: line[route_id],
-			Name: line[short_name],
+			Id:     line[route_id],
+			Name:   line[short_name],
+			Colors: []string{line[fgcolor], line[bgcolor]},
 		}
 		routes = append(routes,route)
 	}
