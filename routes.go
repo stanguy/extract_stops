@@ -7,13 +7,16 @@ import (
 	"io"
 )
 
+const ROUTES_FILENAME = "routes.txt"
 type Route struct {
 	Id string
 	Name string
 	Stops []string
 }
 
-func readroutes(routes_file string) []Route {
+func readroutes(basedir string) []Route {
+	paths := readroutesxml(basedir)
+	routes_file := basedir + "/" + ROUTES_FILENAME
 	reader := gtfsreader.NewReader(routes_file)
 	if reader == nil {
 		fmt.Printf("Unable to open routes file %s\n", routes_file)

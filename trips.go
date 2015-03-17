@@ -7,8 +7,12 @@ import (
 	"log"
 )
 
+const TRIPS_FILENAME = "trips.txt"
+const STOPTIMES_FILENAME = "stop_times.txt"
+
 // find all stops associated with lines
-func readtrips(trips_file string) map[string]string {
+func readtrips(basedir string) map[string]string {
+	trips_file := basedir + "/" + TRIPS_FILENAME
 	reader := gtfsreader.NewReader(trips_file)
 	if reader == nil {
 		fmt.Printf("Unable to open trips file %s\n", trips_file)
@@ -37,7 +41,8 @@ func readtrips(trips_file string) map[string]string {
 	return routes_by_trip
 }
 
-func readstoptimes(stoptimes_file string, routes_by_trip map[string]string) map[string]map[string]bool {
+func readstoptimes(basedir string, routes_by_trip map[string]string) map[string]map[string]bool {
+	stoptimes_file := basedir + "/" + STOPTIMES_FILENAME
 	reader := gtfsreader.NewReader(stoptimes_file)
 	if reader == nil {
 		fmt.Printf("Unable to open stoptimes file %s\n", stoptimes_file)

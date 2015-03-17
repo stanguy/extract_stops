@@ -15,6 +15,8 @@ import (
 const WKS84_SRID = 4326
 const G_SRID = 900913
 
+const STOPS_FILENAME = "stops.txt"
+
 func atoi(str string) int {
 	i, _ := strconv.Atoi(str)
 	return i
@@ -89,8 +91,8 @@ type StopStation struct {
 	Members []IndividualStop
 }
 
-
-func readstops(stops_file string) []StopStation {
+func readstops(basedir string) []StopStation {
+	stops_file := basedir + "/" + STOPS_FILENAME
 	reader := gtfsreader.NewReader(stops_file)
 	if reader == nil {
 		fmt.Printf("Unable to open stops file %s\n", stops_file)
