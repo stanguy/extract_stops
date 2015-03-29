@@ -91,12 +91,12 @@ type StopStation struct {
 	Members []IndividualStop
 }
 
-func readstops(basedir string) []StopStation {
+func readstops(basedir string, c chan StopStation) {
 	stops_file := basedir + "/" + STOPS_FILENAME
 	reader := gtfsreader.NewReader(stops_file)
 	if reader == nil {
 		fmt.Printf("Unable to open stops file %s\n", stops_file)
-		return nil
+		return
 	}
 	defer reader.Close()
 	stop_lat := reader.Headers["stop_lat"]
@@ -144,8 +144,6 @@ func readstops(basedir string) []StopStation {
 		nb_stops++
 	}
 
-	stations := make([]StopStation, 0)
-
 	for _, stops := range stops_by_name {
 		if len(stops) == 1 {
 			continue
@@ -173,12 +171,11 @@ func readstops(basedir string) []StopStation {
 		center, _ := mpoints.Centroid()
 		x, _ := center.X()
 		y, _ := center.Y()
-		station := StopStation{
+		c <- StopStation{
 			Name:    stops[0].Name,
 			Pos:     [2]float64{x, y},
 			Members: sub_stops,
 		}
-		stations = append(stations, station)
 	}
-	return stations
+	close(c)
 }
