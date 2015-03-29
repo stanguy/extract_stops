@@ -78,7 +78,7 @@ func readroutesxml(basedir string) map[string][]string {
 	return paths
 }
 
-func readroutes(basedir string,c chan Route) {
+func readroutes(basedir string, c chan Route) {
 	paths := readroutesxml(basedir)
 	routes_file := basedir + "/" + ROUTES_FILENAME
 	reader := gtfsreader.NewReader(routes_file)
