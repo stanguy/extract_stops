@@ -25,11 +25,35 @@ func main() {
 		basedir = "."
 	}
 
-	data := ExportedData{
-		Stops:  readstops(basedir),
-		Routes: readroutes(basedir),
-	}
+	stop_c := make(chan StopStation)
+	route_c := make(chan Route)
 
+	go readstops(basedir,stop_c)
+	go readroutes(basedir,route_c)
+
+	data := ExportedData{
+		Stops: make([]StopStation,0),
+		Routes: make([]Route,0),
+	}
+	for {
+		select {
+		case s, ok := <-stop_c:
+			if ok {
+				data.Stops = append(data.Stops,s)
+			} else {
+				stop_c = nil
+			}
+		case r, ok := <-route_c:
+			if ok {
+				data.Routes = append(data.Routes,r)
+			} else {
+				route_c = nil
+			}
+		}
+		if nil == stop_c && nil == route_c {
+			break
+		}
+	}
 	route_stops := readstoptimes(basedir, readtrips(basedir))
 
 	for idx, route := range data.Routes {

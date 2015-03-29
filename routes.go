@@ -78,13 +78,13 @@ func readroutesxml(basedir string) map[string][]string {
 	return paths
 }
 
-func readroutes(basedir string) []Route {
+func readroutes(basedir string,c chan Route) {
 	paths := readroutesxml(basedir)
 	routes_file := basedir + "/" + ROUTES_FILENAME
 	reader := gtfsreader.NewReader(routes_file)
 	if reader == nil {
 		fmt.Printf("Unable to open routes file %s\n", routes_file)
-		return nil
+		return
 	}
 	defer reader.Close()
 
@@ -93,7 +93,6 @@ func readroutes(basedir string) []Route {
 	bgcolor := reader.Headers["route_color"]
 	fgcolor := reader.Headers["route_text_color"]
 
-	routes := make([]Route, 0)
 	for {
 		line, err := reader.Read()
 		if err == io.EOF {
@@ -122,8 +121,7 @@ func readroutes(basedir string) []Route {
 			}
 			route.Lines = real_paths
 		}
-		routes = append(routes, route)
+		c <- route
 	}
-
-	return routes
+	close(c)
 }
