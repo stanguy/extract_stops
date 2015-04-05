@@ -145,9 +145,6 @@ func readstops(basedir string, c chan StopStation) {
 	}
 
 	for _, stops := range stops_by_name {
-		if len(stops) == 1 {
-			continue
-		}
 		sub_stops := make([]IndividualStop, len(stops))
 		points := make([]*geos.Geometry, len(stops))
 		for i := 0; i < len(stops); i++ {
