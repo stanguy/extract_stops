@@ -14,6 +14,7 @@ import (
 
 const WKS84_SRID = 4326
 const G_SRID = 900913
+const MAX_STOP_DISTANCE = 320
 
 const STOPS_FILENAME = "stops.txt"
 
@@ -145,33 +146,47 @@ func readstops(basedir string, c chan StopStation) {
 	}
 
 	for _, stops := range stops_by_name {
-		sub_stops := make([]IndividualStop, len(stops))
-		points := make([]*geos.Geometry, len(stops))
+		sorted_stops := make([][]Stop, 0)
+		found := false
 		for i := 0; i < len(stops); i++ {
-			sub_stops[i] = IndividualStop{
-				Pos: stops[i].Pos,
-				Id:  stops[i].StopId,
+			current_stop := stops[i];
+			for j, v := range sorted_stops {
+				dist, err := distance(current_stop.Geom, v[0].Geom)
+				if err != nil {
+					log.Fatal(err)
+					continue
+				}
+				if dist < MAX_STOP_DISTANCE {
+					// add
+					found = true;
+					sorted_stops[j] = append( sorted_stops[j], current_stop)
+					break;
+				} else if dist >= MAX_STOP_DISTANCE {
+					log.Printf("Found stop more distant named %s at %fm", current_stop.Name, dist )
+				}			
 			}
-			points[i] = stops[i].Geom
-			/* Not really necessary for the moment, we assume data is safe enough
-			v, err := distance(stops[0].Geom, stops[i].Geom)
-			if err != nil {
-				log.Fatal(err)
-				continue
+			if ! found {
+				new_stop := make([]Stop,1)
+				new_stop[0] = current_stop;
+				sorted_stops = append( sorted_stops, new_stop );
 			}
-			if v > 200 {
-				fmt.Printf("d:%f (%s)\n", v, stops[0].Name)
-			}
-			*/
 		}
-		mpoints, _ := geos.NewCollection(geos.MULTIPOINT, points...)
-		center, _ := mpoints.Centroid()
-		x, _ := center.X()
-		y, _ := center.Y()
-		c <- StopStation{
-			Name:    stops[0].Name,
-			Pos:     [2]float64{x, y},
-			Members: sub_stops,
+		for _, v := range sorted_stops {
+			points := make([]*geos.Geometry, len(v))
+			export_stops := make([]IndividualStop,len(v))
+			for j, stop := range v {
+				points[j] = stop.Geom
+				export_stops[j] = IndividualStop{ stop.Pos, stop.StopId }
+			}
+			mpoints, _ := geos.NewCollection(geos.MULTIPOINT, points...)
+			center, _ := mpoints.Centroid()
+			x, _ := center.X()
+			y, _ := center.Y()
+			c <- StopStation{
+				Name:    stops[0].Name,
+				Pos:     [2]float64{x, y},
+				Members: export_stops,
+			}
 		}
 	}
 	close(c)
