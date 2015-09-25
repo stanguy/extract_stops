@@ -17,10 +17,10 @@ const ROUTES_FILENAME = "routes.txt"
 const XML_FILENAME = "star_ligne_itineraire.kml"
 
 type Route struct {
-	Id     string
-	Name   string
+	Id       string
+	Name     string
 	LongName string
-	Colors []string
+	Colors   []string
 
 	Stops []string
 	Lines []string
@@ -101,10 +101,10 @@ func readroutes(basedir string, c chan Route) {
 			break
 		}
 		route := Route{
-			Id:     line[route_id],
-			Name:   line[short_name],
+			Id:       line[route_id],
+			Name:     line[short_name],
 			LongName: line[long_name],
-			Colors: []string{line[fgcolor], line[bgcolor]},
+			Colors:   []string{line[fgcolor], line[bgcolor]},
 		}
 		route_paths, name_exists := paths[line[short_name]]
 		if name_exists {

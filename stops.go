@@ -149,7 +149,7 @@ func readstops(basedir string, c chan StopStation) {
 		sorted_stops := make([][]Stop, 0)
 		found := false
 		for i := 0; i < len(stops); i++ {
-			current_stop := stops[i];
+			current_stop := stops[i]
 			for j, v := range sorted_stops {
 				dist, err := distance(current_stop.Geom, v[0].Geom)
 				if err != nil {
@@ -158,25 +158,25 @@ func readstops(basedir string, c chan StopStation) {
 				}
 				if dist < MAX_STOP_DISTANCE {
 					// add
-					found = true;
-					sorted_stops[j] = append( sorted_stops[j], current_stop)
-					break;
+					found = true
+					sorted_stops[j] = append(sorted_stops[j], current_stop)
+					break
 				} else if dist >= MAX_STOP_DISTANCE {
-					log.Printf("Found stop more distant named %s at %fm", current_stop.Name, dist )
-				}			
+					log.Printf("Found stop more distant named %s at %fm", current_stop.Name, dist)
+				}
 			}
-			if ! found {
-				new_stop := make([]Stop,1)
-				new_stop[0] = current_stop;
-				sorted_stops = append( sorted_stops, new_stop );
+			if !found {
+				new_stop := make([]Stop, 1)
+				new_stop[0] = current_stop
+				sorted_stops = append(sorted_stops, new_stop)
 			}
 		}
 		for _, v := range sorted_stops {
 			points := make([]*geos.Geometry, len(v))
-			export_stops := make([]IndividualStop,len(v))
+			export_stops := make([]IndividualStop, len(v))
 			for j, stop := range v {
 				points[j] = stop.Geom
-				export_stops[j] = IndividualStop{ stop.Pos, stop.StopId }
+				export_stops[j] = IndividualStop{stop.Pos, stop.StopId}
 			}
 			mpoints, _ := geos.NewCollection(geos.MULTIPOINT, points...)
 			center, _ := mpoints.Centroid()
