@@ -28,22 +28,36 @@ func atof(str string) float64 {
 	return f
 }
 
-func convert_to_cart(point *geos.Geometry) (converted *geos.Geometry, err error) {
-	wgs84, err := proj.NewProj("+proj=longlat +ellps=WGS84 +datum=WGS84")
-	defer wgs84.Close()
-	if err != nil {
-		return nil, err
-	}
-	cart, err := proj.NewProj("+proj=utm +zone=30 +ellps=WGS84 +datum=WGS84 +units=m +no_defs ")
-	defer cart.Close()
-	if err != nil {
-		return nil, err
-	}
+type Converter struct {
+	wgs84 *proj.Proj
+	cart  *proj.Proj
+	cache map[*geos.Geometry]*geos.Geometry
+}
 
+func NewConverter() *Converter {
+	conv := &Converter{}
+	var err error
+	conv.wgs84, err = proj.NewProj("+proj=longlat +ellps=WGS84 +datum=WGS84")
+	if err != nil {
+		return nil
+	}
+	conv.cart, err = proj.NewProj("+proj=utm +zone=30 +ellps=WGS84 +datum=WGS84 +units=m +no_defs ")
+	if err != nil {
+		conv.wgs84 = nil
+		return nil
+	}
+	conv.cache = make(map[*geos.Geometry]*geos.Geometry)
+	return conv
+}
+
+func (self *Converter) to_cart(point *geos.Geometry) (converted *geos.Geometry, err error) {
+	if converted, ok := self.cache[point]; ok {
+		return converted, nil
+	}
 	orig_x, _ := point.X()
 	orig_y, _ := point.Y()
 
-	x, y, err := proj.Transform2(wgs84, cart, proj.DegToRad(orig_x), proj.DegToRad(orig_y))
+	x, y, err := proj.Transform2(self.wgs84, self.cart, proj.DegToRad(orig_x), proj.DegToRad(orig_y))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -53,16 +67,18 @@ func convert_to_cart(point *geos.Geometry) (converted *geos.Geometry, err error)
 		return nil, err
 	}
 	converted.SetSRID(G_SRID)
+	self.cache[point] = converted
 	return converted, nil
+
 }
 
-func distance(lhs, rhs *geos.Geometry) (d float64, err error) {
-	lhs_cart, err := convert_to_cart(lhs)
+func (self *Converter) distance(lhs, rhs *geos.Geometry) (d float64, err error) {
+	lhs_cart, err := self.to_cart(lhs)
 	if err != nil {
 		log.Fatal(err)
 		return 0.0, nil
 	}
-	rhs_cart, err := convert_to_cart(rhs)
+	rhs_cart, err := self.to_cart(rhs)
 	if err != nil {
 		log.Fatal(err)
 		return 0.0, nil
@@ -145,13 +161,14 @@ func readstops(basedir string, c chan StopStation) {
 		nb_stops++
 	}
 
+	converter := NewConverter()
 	for _, stops := range stops_by_name {
 		sorted_stops := make([][]Stop, 0)
 		found := false
 		for i := 0; i < len(stops); i++ {
 			current_stop := stops[i]
 			for j, v := range sorted_stops {
-				dist, err := distance(current_stop.Geom, v[0].Geom)
+				dist, err := converter.distance(current_stop.Geom, v[0].Geom)
 				if err != nil {
 					log.Fatal(err)
 					continue
