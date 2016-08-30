@@ -39,14 +39,14 @@ func readroutesxml(basedir string) map[string][]string {
 	xp := doc.DocXPathCtx()
 	xp.RegisterNamespace("ns", "http://www.opengis.net/kml/2.2")
 
-	folder_expr := xpath.Compile("//ns:Folder/ns:Placemark")
+	folder_expr := xpath.Compile("//ns:Placemark")
 
 	folders, err := doc.Search(folder_expr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	line_expr := xpath.Compile("ns:ExtendedData//ns:SimpleData[@name='LI_NUM']")
+	line_expr := xpath.Compile("ns:ExtendedData//ns:SimpleData[@name='nomcourtligne']")
 	coords_expr := xpath.Compile("*//ns:LineString/ns:coordinates")
 
 	paths := make(map[string][]string)
@@ -111,7 +111,7 @@ func readroutes(basedir string, c chan Route) {
 			real_paths := make([]string, len(route_paths))
 			for i, line := range route_paths {
 				coords_set := make([][]float64, 0)
-				for _, coords_str_set := range strings.Split(line, " ") {
+				for _, coords_str_set := range strings.Fields(line) {
 					coords := strings.Split(coords_str_set, ",")
 					if len(coords) != 3 {
 						continue
