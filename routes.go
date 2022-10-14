@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/moovweb/gokogiri"
-	"github.com/moovweb/gokogiri/xpath"
+	"github.com/jbowtie/gokogiri"
+	"github.com/jbowtie/gokogiri/xpath"
 	"github.com/stanguy/extract_stops/gtfsreader"
 	"github.com/stanguy/gomaps/polyline"
 	"io"
