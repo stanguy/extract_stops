@@ -1,10 +1,10 @@
 package main
 
 import (
+	"extract_stops/gtfsreader"
 	"fmt"
 	"github.com/paulsmith/gogeos/geos"
-	"github.com/pebbe/go-proj-4/proj"
-	"github.com/stanguy/extract_stops/gtfsreader"
+	"github.com/pebbe/proj/v5"
 	"io"
 	"log"
 	"regexp"
@@ -29,21 +29,23 @@ func atof(str string) float64 {
 }
 
 type Converter struct {
-	wgs84 *proj.Proj
-	cart  *proj.Proj
-	cache map[*geos.Geometry]*geos.Geometry
+	ctx      *proj.Context
+	pipeline *proj.PJ
+	cache    map[*geos.Geometry]*geos.Geometry
 }
 
 func NewConverter() *Converter {
 	conv := &Converter{}
+
+	conv.ctx = proj.NewContext()
+
 	var err error
-	conv.wgs84, err = proj.NewProj("+proj=longlat +ellps=WGS84 +datum=WGS84")
+	conv.pipeline, err = conv.ctx.Create(`
+        +proj=pipeline
+        +step +proj=longlat +ellps=WGS84 +datum=WGS84
+        +step +proj=utm +zone=30 +ellps=WGS84 +datum=WGS84 +units=m +no_defs
+    `)
 	if err != nil {
-		return nil
-	}
-	conv.cart, err = proj.NewProj("+proj=utm +zone=30 +ellps=WGS84 +datum=WGS84 +units=m +no_defs ")
-	if err != nil {
-		conv.wgs84 = nil
 		return nil
 	}
 	conv.cache = make(map[*geos.Geometry]*geos.Geometry)
@@ -57,7 +59,7 @@ func (self *Converter) to_cart(point *geos.Geometry) (converted *geos.Geometry, 
 	orig_x, _ := point.X()
 	orig_y, _ := point.Y()
 
-	x, y, err := proj.Transform2(self.wgs84, self.cart, proj.DegToRad(orig_x), proj.DegToRad(orig_y))
+	x, y, _, _, err := self.pipeline.Trans(proj.Fwd, proj.DegToRad(orig_x), proj.DegToRad(orig_y), 0, 0)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -69,7 +71,11 @@ func (self *Converter) to_cart(point *geos.Geometry) (converted *geos.Geometry, 
 	converted.SetSRID(G_SRID)
 	self.cache[point] = converted
 	return converted, nil
+}
 
+func (self *Converter) close() {
+	self.pipeline.Close()
+	self.ctx.Close()
 }
 
 func (self *Converter) distance(lhs, rhs *geos.Geometry) (d float64, err error) {
@@ -123,7 +129,7 @@ func readstops(basedir string, c chan StopStation) {
 
 	stops_by_name := make(map[string][]Stop)
 
-	name_cleaner, _ := regexp.Compile("[ -_\\.]")
+	name_cleaner, _ := regexp.Compile(`[ -_\\.]`)
 
 	nb_stops := 0
 
@@ -162,6 +168,7 @@ func readstops(basedir string, c chan StopStation) {
 	}
 
 	converter := NewConverter()
+	defer converter.close()
 	for _, stops := range stops_by_name {
 		sorted_stops := make([][]Stop, 0)
 		found := false

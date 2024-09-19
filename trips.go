@@ -1,8 +1,8 @@
 package main
 
 import (
+	"extract_stops/gtfsreader"
 	"fmt"
-	"github.com/stanguy/extract_stops/gtfsreader"
 	"io"
 	"log"
 )

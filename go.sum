@@ -1,0 +1,8 @@
+github.com/jbowtie/gokogiri v0.0.0-20190301021639-37f655d3078f h1:6UIvzqlGM38lOpKP380Wbl0kUyyjutcc7KJUaDM/U4o=
+github.com/jbowtie/gokogiri v0.0.0-20190301021639-37f655d3078f/go.mod h1:C3R3VzPq+DAwilxue7DiV6F2QL1rrQX0L56GyI+sBxM=
+github.com/paulsmith/gogeos v0.1.2 h1:PASLPRO7sjXZLERnQ98EKqY4l9zjQW+irDD5FFRms8I=
+github.com/paulsmith/gogeos v0.1.2/go.mod h1:7GN4vaVO09zFKjDPYsAoeA1j+8GuSicOlnbKo+A0AZM=
+github.com/pebbe/proj/v5 v5.1.0 h1:kWUin1/MDfN/NLF0ShWoUtGP58yOHvQHq6/Bhz12kZQ=
+github.com/pebbe/proj/v5 v5.1.0/go.mod h1:ugCWXcQVMz8qzKroQ/1847LkuNNf9g8Dyew9gydUQG4=
+github.com/stanguy/gomaps v0.0.0-20150317162055-221deeab3809 h1:j10JWV3X4SF6vLcGTdzX/Y2U0U+swXzUVlFqIQIF1NY=
+github.com/stanguy/gomaps v0.0.0-20150317162055-221deeab3809/go.mod h1:J0BcPmMzsXTnPjW0DbvnKMH30eRCJNXboBN/Rt465X0=

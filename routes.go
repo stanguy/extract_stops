@@ -1,10 +1,10 @@
 package main
 
 import (
+	"extract_stops/gtfsreader"
 	"fmt"
 	"github.com/jbowtie/gokogiri"
 	"github.com/jbowtie/gokogiri/xpath"
-	"github.com/stanguy/extract_stops/gtfsreader"
 	"github.com/stanguy/gomaps/polyline"
 	"io"
 	"io/ioutil"
