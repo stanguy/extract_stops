@@ -31,7 +31,7 @@ func readtrips(basedir string) map[string]string {
 			break
 		}
 
-		route := line[route_id]
+		route := fix_star_id(line[route_id])
 		trip := line[trip_id]
 
 		routes_by_trip[trip] = route
@@ -40,7 +40,7 @@ func readtrips(basedir string) map[string]string {
 	return routes_by_trip
 }
 
-func readstoptimes(basedir string, routes_by_trip map[string]string) map[string]map[string]bool {
+func readstoptimes(basedir string, routes_by_trip map[string]string) map[string]map[int]bool {
 	stoptimes_file := basedir + "/" + STOPTIMES_FILENAME
 	reader := gtfsreader.NewReader(stoptimes_file)
 	if reader == nil {
@@ -52,7 +52,7 @@ func readstoptimes(basedir string, routes_by_trip map[string]string) map[string]
 	stop_id := reader.Headers["stop_id"]
 	trip_id := reader.Headers["trip_id"]
 
-	line_stops := make(map[string]map[string]bool)
+	line_stops := make(map[string]map[int]bool)
 
 	for {
 		line, err := reader.Read()
@@ -60,7 +60,7 @@ func readstoptimes(basedir string, routes_by_trip map[string]string) map[string]
 			break
 		}
 
-		stop := line[stop_id]
+		stop := atoi(fix_star_id(line[stop_id]))
 		trip := line[trip_id]
 
 		route, name_exists := routes_by_trip[trip]
@@ -69,7 +69,7 @@ func readstoptimes(basedir string, routes_by_trip map[string]string) map[string]
 		}
 		route_stops, name_exists := line_stops[route]
 		if !name_exists {
-			route_stops = make(map[string]bool)
+			route_stops = make(map[int]bool)
 		}
 		route_stops[stop] = true
 		line_stops[route] = route_stops

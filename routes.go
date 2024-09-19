@@ -22,7 +22,7 @@ type Route struct {
 	LongName string
 	Colors   []string
 
-	Stops []string
+	Stops []int
 	Lines []string
 }
 
@@ -75,7 +75,6 @@ func readroutesxml(basedir string) map[string][]string {
 		}
 		paths[line_short] = line_coords
 	}
-
 	return paths
 }
 
@@ -101,7 +100,7 @@ func readroutes(basedir string, c chan Route) {
 			break
 		}
 		route := Route{
-			Id:       line[route_id],
+			Id:       fix_star_id(line[route_id]),
 			Name:     line[short_name],
 			LongName: line[long_name],
 			Colors:   []string{line[fgcolor], line[bgcolor]},
@@ -113,7 +112,7 @@ func readroutes(basedir string, c chan Route) {
 				coords_set := make([][]float64, 0)
 				for _, coords_str_set := range strings.Fields(line) {
 					coords := strings.Split(coords_str_set, ",")
-					if len(coords) != 3 {
+					if len(coords) < 2 || len(coords) > 3 {
 						continue
 					}
 					coords_set = append(coords_set, []float64{

@@ -57,7 +57,7 @@ func main() {
 
 	for idx, route := range data.Routes {
 		all_stops := route_stops[route.Id]
-		stops := make([]string, 0)
+		stops := make([]int, 0)
 		for stop, _ := range all_stops {
 			stops = append(stops, stop)
 		}

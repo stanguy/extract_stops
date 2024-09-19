@@ -96,6 +96,7 @@ func (self *Converter) distance(lhs, rhs *geos.Geometry) (d float64, err error) 
 	return d, nil
 }
 
+// temporary structure for computations
 type Stop struct {
 	Name   string
 	Pos    [2]float64
@@ -103,11 +104,13 @@ type Stop struct {
 	StopId int
 }
 
+// sub-component of the full station
 type IndividualStop struct {
 	Pos [2]float64
 	Id  int
 }
 
+// this is the exported structure for each stop
 type StopStation struct {
 	Name    string
 	Pos     [2]float64
@@ -151,7 +154,7 @@ func readstops(basedir string, c chan StopStation) {
 			line[stop_name],
 			pos,
 			stop_point,
-			atoi(line[stop_id]),
+			atoi(fix_star_id(line[stop_id])),
 		}
 
 		simple_name := name_cleaner.ReplaceAllString(strings.ToLower(stop.Name), "")
